@@ -13,6 +13,4 @@ public interface UserMapStruct {
     UserDto userToUserDto(User user);
 
     User userDtoToUser(UserDto userDto);
-
-
 }

@@ -9,13 +9,15 @@ public class UserProvider {
     public String buildInsertSql(){
 
     return new SQL(){{
-        INSERT_INTO("tableName");
-        VALUES("name","#{u.name}");
-        VALUES("gender","#{u.gender}");
-        VALUES("one_signal_id","#{u.oneSignalId}");
-        VALUES("student_card_id","#{u.studentCardId}");
-        VALUES("is_student","#{u.isStudent}");
-        VALUES("is_deleted","#{FALSE}");
+        INSERT_INTO(tableName);
+        VALUES("name", "#{u.name, javaType=String, jdbcType=VARCHAR}");
+        VALUES("gender", "#{u.gender, javaType=String, jdbcType=VARCHAR}");
+        VALUES("one_signal_id", "#{u.oneSignalId, javaType=String, jdbcType=VARCHAR}");
+        VALUES("is_deleted","FALSE");
+        VALUES("is_student", "#{u.isStudent, javaType=Boolean, jdbcType=BOOLEAN}");
+        VALUES("student_card_id", "#{u.studentCardId, javaType=String, jdbcType=VARCHAR}");
+
+//        VALUES("is_deleted","FALSE");
     }}.toString();
 
     };

@@ -5,15 +5,15 @@ import jakarta.validation.constraints.NotNull;
 
 public record CreateUserDto(
 
-        @NotBlank String name,
+        @NotBlank(message = "Name is required") String name,
 
-        @NotBlank String gender,
+        @NotBlank(message = "Gender is required") String gender,
 
         String oneSignalId,
 
         String studentCardId,
 
-        @NotNull Boolean isStudent
+        @NotNull(message = "You have to confirm, are you a student?") Boolean isStudent
 
 ) {
 }

@@ -22,9 +22,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.projectlombok/lombok-mapstruct-binding
     implementation("org.projectlombok:lombok-mapstruct-binding:0.2.0")
     // https://mvnrepository.com/artifact/org.mapstruct/mapstruct
-    implementation("org.mapstruct:mapstruct:1.6.3")
+    implementation("org.mapstruct:mapstruct:1.5.4.Final")
     // https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor
-    annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+//    annotationProcessor("org.mapstruct:mapstruct-processor:1.6.2")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.4.Final")
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 //    =========================================================================
