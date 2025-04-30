@@ -1,7 +1,10 @@
 package co.istad.mobilebanking.api.user;
 
 import co.istad.mobilebanking.api.user.web.CreateUserDto;
+import co.istad.mobilebanking.api.user.web.UpdateUserDto;
 import co.istad.mobilebanking.api.user.web.UserDto;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,9 +32,18 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.selectUserById(id).orElseThrow(() ->
                  new ResponseStatusException(HttpStatus.NOT_FOUND,
                          String.format("User with id = %s not found", id)));
-                ;
 //        userMapper.selectUserById(id).isEmpty();
         return userMapStruct.userToUserDto(user);
+    }
+
+
+    @Override
+    public PageInfo<UserDto> findAllUsers(int page, int limit) {
+        //                Call repo
+        PageInfo<User> userPageInfo = PageHelper.startPage(page, limit)
+                .doSelectPageInfo(userMapper::select);
+        userMapper.select();
+        return userMapStruct.userPageInfoToUserDtoPageInfo(userPageInfo);
     }
 
     @Override
@@ -55,5 +67,17 @@ public class UserServiceImpl implements UserService {
         }throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                 String.format("User with %d is not found", id));
 
+    }
+
+    @Override
+    public UserDto updateUserById(Integer id, UpdateUserDto updateUserDto) {
+       if (userMapper.existById(id)) {
+           User user = userMapStruct.updateUserDtoToUser(updateUserDto);
+           user.setId(id);
+           userMapper.updateById(user);
+           return this.findUserById(id);
+       }
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+        String.format("User with id = %s not found", id));
     }
 }

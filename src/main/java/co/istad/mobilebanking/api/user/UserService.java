@@ -2,7 +2,9 @@ package co.istad.mobilebanking.api.user;
 
 
 import co.istad.mobilebanking.api.user.web.CreateUserDto;
+import co.istad.mobilebanking.api.user.web.UpdateUserDto;
 import co.istad.mobilebanking.api.user.web.UserDto;
+import com.github.pagehelper.PageInfo;
 
 public interface UserService {
 
@@ -10,8 +12,12 @@ public interface UserService {
 
      UserDto findUserById(Integer id);
 
+     PageInfo<UserDto> findAllUsers(int page, int limit);
+
      Integer deleteUserById(Integer id);
 
      Integer updateIsDeletedStatusById(Integer id, boolean status);
+
+     UserDto updateUserById(Integer id, UpdateUserDto updateUserDto);
 
 }

@@ -2,6 +2,7 @@ package co.istad.mobilebanking.api.user;
 
 import org.apache.ibatis.annotations.*;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -13,9 +14,15 @@ public interface UserMapper {
     void insert(@Param("u") User user);
 
     @SelectProvider(type = UserProvider.class, method = "buildSelectByIdSql")
-    @Result(column = "student_card_id", property = "studentCardId")
-    @Result(column = "is_student", property = "isStudent")
+    @Results (id = "userResultMap", value = {
+            @Result(column = "student_card_id", property = "studentCardId"),
+            @Result(column = "is_student", property = "isStudent")
+    })
     Optional<User> selectUserById(@Param("id") Integer id);
+
+    @ResultMap("userResultMap")
+    @SelectProvider(type = UserProvider.class, method = "buildSelectSql")
+    List<User> select();
 
     @Select("SELECT EXISTS(SELECT * FROM users WHERE id = #{id})")
     boolean existById(@Param("id") Integer id);
@@ -25,5 +32,8 @@ public interface UserMapper {
 
     @UpdateProvider(type = UserProvider.class, method = "buildUpdateIsDeletedByIdSql")
     void updateIsDeleteById(@Param("id") Integer id, @Param("status") boolean status);
+
+    @UpdateProvider(type = UserProvider.class, method = "buildUpdateByIdSql")
+    void updateById(@Param("u") User user);
 
 }

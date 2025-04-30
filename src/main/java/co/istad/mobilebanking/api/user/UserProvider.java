@@ -2,6 +2,7 @@ package co.istad.mobilebanking.api.user;
 
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.jdbc.SQL;
 
 import java.util.Optional;
@@ -9,6 +10,15 @@ import java.util.Optional;
 public class UserProvider {
 
     private static final String tableName = "users";
+
+    public String buildUpdateByIdSql(){
+        return new SQL(){{
+            UPDATE(tableName);
+            SET("name = #{u.name}");
+            SET("gender = #{u.gender}");
+            WHERE("id = #{u.id}");
+        }}.toString();
+    }
 
     public String buildUpdateIsDeletedByIdSql() {
         return new SQL(){{
@@ -49,6 +59,15 @@ public class UserProvider {
             FROM(tableName);
             WHERE("id = #{id}", "is_deleted = FALSE");
 
+        }}.toString();
+    }
+
+    public String buildSelectSql(){
+        return new SQL(){{
+            SELECT("*");
+            FROM("users");
+            WHERE("is_deleted = FALSE");
+            ORDER_BY("id DESC");
         }}.toString();
     }
 
