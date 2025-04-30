@@ -1,0 +1,103 @@
+-- TABLE: account_types
+CREATE TABLE account_types (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255)
+);
+
+-- TABLE: users
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    gender VARCHAR(255),
+    one_signal_id VARCHAR,
+    is_deleted BOOLEAN,
+    is_student BOOLEAN,
+    student_card_id VARCHAR
+);
+
+-- TABLE: accounts
+CREATE TABLE accounts (
+    id SERIAL PRIMARY KEY,
+    account_no VARCHAR,
+    account_name VARCHAR(255),
+    profile VARCHAR(255),
+    pin INT,
+    password VARCHAR(255),
+    phone_number VARCHAR,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    account_type_id INT,
+    FOREIGN KEY (account_type_id) REFERENCES account_types(id)
+);
+
+-- TABLE: user_accounts
+CREATE TABLE user_accounts (
+    id SERIAL PRIMARY KEY,
+    user_id INT,
+    account_id INT,
+    created_at TIMESTAMP,
+    is_disabled BOOLEAN,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+
+-- TABLE: transactions
+CREATE TABLE transactions (
+    id SERIAL PRIMARY KEY,
+    sender_account_id INT,
+    receiver_account_id INT,
+    amount MONEY,
+    remark VARCHAR(255),
+    is_payment BOOLEAN,
+    payment_id INT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY (sender_account_id) REFERENCES accounts(id),
+    FOREIGN KEY (receiver_account_id) REFERENCES accounts(id)
+    -- Leave out the payment_id FK until payment_details exists
+);
+
+-- TABLE: notifications
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    content VARCHAR(255),
+    transacted_at TIMESTAMP,
+    transaction_id INT,
+    sender_id INT,
+    receiver_id INT,
+    FOREIGN KEY (transaction_id) REFERENCES transactions(id),
+    FOREIGN KEY (sender_id) REFERENCES users(id),
+    FOREIGN KEY (receiver_id) REFERENCES users(id)
+);
+
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS user_accounts;
+DROP TABLE IF EXISTS accounts;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS account_types;
+
+
+-- 1
+ALTER TABLE accounts
+ADD CONSTRAINT fk_account_type
+FOREIGN KEY (account_type_id) REFERENCES account_types(id);
+
+ALTER TABLE "user_accounts"
+ADD CONSTRAINT "account_id"
+FOREIGN KEY ("account_id") REFERENCES "accounts"("id");
+
+ALTER TABLE "user_accounts"
+ADD CONSTRAINT "user_id"
+FOREIGN KEY ("user_id") REFERENCES "users"("id");
+
+-- 2
+ALTER TABLE "transactions"
+ADD CONSTRAINT "receiver_account_id" FOREIGN KEY ("receiver_account_id") REFERENCES "accounts" ("id"),
+ADD CONSTRAINT "sender_account_id" FOREIGN KEY ("sender_account_id") REFERENCES "accounts" ("id"),
+ADD CONSTRAINT "payment_id" FOREIGN KEY ("payment_id") REFERENCES "payment_details" ("id");
+-- 3
+ALTER TABLE "Notifications" ADD CONSTRAINT "transaction_id" FOREIGN KEY ("transaction_id") REFERENCES "transactions" ("id");
+ALTER TABLE "Notifications" ADD CONSTRAINT "receiver_id" FOREIGN KEY ("receiver_id") REFERENCES "users" ("id");
+ALTER TABLE "Notifications" ADD CONSTRAINT "sender_id" FOREIGN KEY ("sender_id") REFERENCES "users" ("id");
+--

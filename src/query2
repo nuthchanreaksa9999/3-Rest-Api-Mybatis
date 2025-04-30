@@ -1,0 +1,85 @@
+-- DROP old tables first if needed
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS user_accounts;
+DROP TABLE IF EXISTS accounts;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS account_types;
+
+-- Create fresh tables
+CREATE TABLE account_types (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255)
+);
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    gender VARCHAR(255),
+    one_signal_id VARCHAR,
+    is_deleted BOOLEAN,
+    is_student BOOLEAN,
+    student_card_id VARCHAR
+);
+
+CREATE TABLE accounts (
+    id SERIAL PRIMARY KEY,
+    account_no VARCHAR,
+    account_name VARCHAR(255),
+    profile VARCHAR(255),
+    pin INT,
+    password VARCHAR(255),
+    phone_number VARCHAR,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    account_type_id INT
+);
+
+CREATE TABLE user_accounts (
+    id SERIAL PRIMARY KEY,
+    user_id INT,
+    account_id INT,
+    created_at TIMESTAMP,
+    is_disabled BOOLEAN
+);
+
+CREATE TABLE transactions (
+    id SERIAL PRIMARY KEY,
+    sender_account_id INT,
+    receiver_account_id INT,
+    amount MONEY,
+    remark VARCHAR(255),
+    is_payment BOOLEAN,
+    payment_id INT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    content VARCHAR(255),
+    transacted_at TIMESTAMP,
+    transaction_id INT,
+    sender_id INT,
+    receiver_id INT
+);
+
+-- Add foreign key constraints after all related tables exist
+ALTER TABLE accounts
+ADD CONSTRAINT fk_account_type
+FOREIGN KEY (account_type_id) REFERENCES account_types(id);
+
+ALTER TABLE user_accounts
+ADD CONSTRAINT fk_account FOREIGN KEY (account_id) REFERENCES accounts(id),
+ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id);
+
+ALTER TABLE transactions
+ADD CONSTRAINT fk_sender FOREIGN KEY (sender_account_id) REFERENCES accounts(id),
+ADD CONSTRAINT fk_receiver FOREIGN KEY (receiver_account_id) REFERENCES accounts(id);
+-- Uncomment only if payment_details table exists
+-- ADD CONSTRAINT fk_payment FOREIGN KEY (payment_id) REFERENCES payment_details(id);
+
+ALTER TABLE notifications
+ADD CONSTRAINT fk_transaction FOREIGN KEY (transaction_id) REFERENCES transactions(id),
+ADD CONSTRAINT fk_sender_user FOREIGN KEY (sender_id) REFERENCES users(id),
+ADD CONSTRAINT fk_receiver_user FOREIGN KEY (receiver_id) REFERENCES users(id);

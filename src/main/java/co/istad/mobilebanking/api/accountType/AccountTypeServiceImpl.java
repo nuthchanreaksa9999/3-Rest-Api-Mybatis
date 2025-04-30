@@ -16,12 +16,9 @@ public class AccountTypeServiceImpl implements AccountTypeService {
     public List<AccountTypeDto> findAll() {
         List<AccountType> accountTypes = accountTypeMapper.select();
 
-
 /*        List<AccountTypeDto> accountDtoList = accountTypes.stream()
                 .map(accountType -> new AccountTypeDto(accountType.getName()))
-                .toList();*/
-
-
+                .toList(); */
 
         return accountTypeMapStruct.toDto(accountTypes);
     }

@@ -1,25 +1,57 @@
 package co.istad.mobilebanking.api.user;
 
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.jdbc.SQL;
+
+import java.util.Optional;
 
 public class UserProvider {
 
     private static final String tableName = "users";
-    public String buildInsertSql(){
+
+    public String buildUpdateIsDeletedByIdSql() {
+        return new SQL(){{
+            UPDATE(tableName);
+            SET("is_deleted = #{status}");
+            WHERE("id = #{id}");
+        }}.toString();
+    }
+
+    public String buildDeleteByIdSql() {
+        return new SQL() {{
+            DELETE_FROM(tableName);
+            WHERE("id = #{id}");
+        }}.toString();
+    }
+
+    public String buildInsertSql(@Param("u") User user){
 
     return new SQL(){{
         INSERT_INTO(tableName);
-        VALUES("name", "#{u.name, javaType=String, jdbcType=VARCHAR}");
-        VALUES("gender", "#{u.gender, javaType=String, jdbcType=VARCHAR}");
-        VALUES("one_signal_id", "#{u.oneSignalId, javaType=String, jdbcType=VARCHAR}");
-        VALUES("is_deleted","FALSE");
-        VALUES("is_student", "#{u.isStudent, javaType=Boolean, jdbcType=BOOLEAN}");
-        VALUES("student_card_id", "#{u.studentCardId, javaType=String, jdbcType=VARCHAR}");
+        VALUES("name", "#{u.name}");
+        VALUES("gender", "#{u.gender}");
+        VALUES("one_signal_id", "#{u.oneSignalId}");
+        VALUES("is_student", "#{u.isStudent}");
+        if (Optional.ofNullable(user.getStudentCardId()).orElse("").isBlank()){
+            VALUES("student_card_id", "#{u.studentCardId}");
+        }
 
-//        VALUES("is_deleted","FALSE");
+        VALUES("is_deleted","FALSE");
     }}.toString();
 
     };
+
+    public String buildSelectByIdSql(){
+        return new SQL() {{
+
+            SELECT("*");
+            FROM(tableName);
+            WHERE("id = #{id}", "is_deleted = FALSE");
+
+        }}.toString();
+    }
+
+
 
 }
