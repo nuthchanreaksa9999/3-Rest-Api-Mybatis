@@ -22,7 +22,7 @@ public interface UserMapper {
 
     @ResultMap("userResultMap")
     @SelectProvider(type = UserProvider.class, method = "buildSelectSql")
-    List<User> select();
+    List<User> select(@Param("name") String name);
 
     @Select("SELECT EXISTS(SELECT * FROM users WHERE id = #{id})")
     boolean existById(@Param("id") Integer id);

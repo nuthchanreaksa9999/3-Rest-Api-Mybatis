@@ -12,7 +12,7 @@ public interface UserService {
 
      UserDto findUserById(Integer id);
 
-     PageInfo<UserDto> findAllUsers(int page, int limit);
+     PageInfo<UserDto> findAllUsers(int page, int limit, String name);
 
      Integer deleteUserById(Integer id);
 

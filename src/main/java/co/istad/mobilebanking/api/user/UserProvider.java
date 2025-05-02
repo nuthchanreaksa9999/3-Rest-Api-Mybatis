@@ -62,11 +62,15 @@ public class UserProvider {
         }}.toString();
     }
 
+//    Prefix
+//    Suffix
+//    infix
+//    Equality
     public String buildSelectSql(){
         return new SQL(){{
             SELECT("*");
             FROM("users");
-            WHERE("is_deleted = FALSE");
+            WHERE("name ILIKE '%' || #{name} || '%'", "is_deleted = FALSE");
             ORDER_BY("id DESC");
         }}.toString();
     }

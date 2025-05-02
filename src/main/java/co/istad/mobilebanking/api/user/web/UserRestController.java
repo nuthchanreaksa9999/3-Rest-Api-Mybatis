@@ -71,8 +71,10 @@ public class UserRestController {
 
     @GetMapping
     public BaseRest<?> findAllUsers(@RequestParam(name = "page", required = false, defaultValue = "1") int page
-    ,                                @RequestParam(name = "limit", required = false, defaultValue = "20") int limit) {
-        PageInfo<UserDto> userDtoPageInfo = userService.findAllUsers(page, limit);
+    ,                                @RequestParam(name = "limit", required = false, defaultValue = "20") int limit,
+                                    @RequestParam(value = "name", required = false, defaultValue = "") String name
+                                    ) {
+        PageInfo<UserDto> userDtoPageInfo = userService.findAllUsers(page, limit, name);
         return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())

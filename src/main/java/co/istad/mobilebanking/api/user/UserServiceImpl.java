@@ -22,8 +22,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createNewUser(CreateUserDto createUserDto) {
         User user = userMapStruct.createUserDtoToUser(createUserDto);
+        log.info("Mapped User: {}", user);
         userMapper.insert(user);
-        log.info("User = {} ", user.getId());
         return this.findUserById(user.getId());
     }
 
@@ -36,13 +36,13 @@ public class UserServiceImpl implements UserService {
         return userMapStruct.userToUserDto(user);
     }
 
-
     @Override
-    public PageInfo<UserDto> findAllUsers(int page, int limit) {
+    public PageInfo<UserDto> findAllUsers(int page, int limit, String name) {
         //                Call repo
         PageInfo<User> userPageInfo = PageHelper.startPage(page, limit)
-                .doSelectPageInfo(userMapper::select);
-        userMapper.select();
+//                .doSelectPageInfo(userMapper::select);
+        .doSelectPageInfo(()-> userMapper.select(name));
+
         return userMapStruct.userPageInfoToUserDtoPageInfo(userPageInfo);
     }
 

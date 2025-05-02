@@ -4,6 +4,12 @@ import java.util.List;
 
 public interface AccountTypeService {
 
-    List<AccountTypeDto> findAll();
+    List<AccountTypeDto> findAllAccountTypes();
+
+    AccountTypeDto findById(Integer id);
+
+    AccountTypeDto createNew(AccountTypeDto accountTypeDto);
+
+    AccountTypeDto updateById(Integer id, AccountTypeDto accountTypeDto);
 
 }
