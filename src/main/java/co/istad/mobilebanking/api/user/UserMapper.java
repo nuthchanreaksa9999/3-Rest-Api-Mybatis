@@ -20,6 +20,10 @@ public interface UserMapper {
     })
     Optional<User> selectUserById(@Param("id") Integer id);
 
+    @SelectProvider(type = UserProvider.class, method = "buildSelectByStudentCardIdSql")
+    @ResultMap("userResultMap")
+    Optional<User> selectByStudentCardId(@Param("studentCardId") String studentCardId);
+
     @ResultMap("userResultMap")
     @SelectProvider(type = UserProvider.class, method = "buildSelectSql")
     List<User> select(@Param("name") String name);

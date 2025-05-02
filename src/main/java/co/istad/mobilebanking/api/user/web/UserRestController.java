@@ -57,9 +57,18 @@ public class UserRestController {
                 .build();
     }
 
-    @GetMapping("/{id}")
-    public BaseRest<?> findUserById(@PathVariable Integer id) {
-        UserDto userDto = userService.findUserById(id);
+    @GetMapping("/{identifier}")
+    public BaseRest<?> findUserById(@PathVariable("identifier") String identifier) {
+        UserDto userDto;
+        /*UserDto userDto = userService.findUserById(id);*/
+
+        try {
+            Integer id = Integer.parseInt(identifier);
+            userDto = userService.findUserById(id);
+        }catch (NumberFormatException e) {
+            userDto = userService.findUserByStudentCardId(identifier);
+        }
+
         return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
@@ -68,6 +77,12 @@ public class UserRestController {
                 .data(userDto)
                 .build();
     }
+
+/*    @GetMapping("/{student-card-id}")
+    public BaseRest<?> findUserByStudentCardById(@PathVariable("student-card-id") String studentCardId) {
+        log.info("studentCardId: {}", studentCardId);
+        return null;
+    }*/
 
     @GetMapping
     public BaseRest<?> findAllUsers(@RequestParam(name = "page", required = false, defaultValue = "1") int page

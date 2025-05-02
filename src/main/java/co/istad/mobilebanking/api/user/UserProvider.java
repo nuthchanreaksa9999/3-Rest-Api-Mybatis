@@ -75,6 +75,14 @@ public class UserProvider {
         }}.toString();
     }
 
+    public String buildSelectByStudentCardIdSql(){
+        return new SQL(){{
+            SELECT("*");
+            FROM(tableName);
+            WHERE("student_card_id = #{studentCardId}", "is_deleted = FALSE");
+        }}.toString();
+    }
+
 
 
 }
