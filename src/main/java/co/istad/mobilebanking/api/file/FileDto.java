@@ -7,6 +7,8 @@ public record FileDto(
 
         String name,
 
+        String downloadUrl,
+
         String url,
 
         String extension,
