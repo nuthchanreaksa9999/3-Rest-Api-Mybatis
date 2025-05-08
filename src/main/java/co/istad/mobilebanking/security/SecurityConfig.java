@@ -1,5 +1,6 @@
 package co.istad.mobilebanking.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,12 +8,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final PasswordEncoder encoder;
 
     //  Define in-memory user
     @Bean
@@ -21,19 +26,19 @@ public class SecurityConfig {
 
         UserDetails admin = User.builder()
                 .username("admin")
-                .password("{noop}1234")
+                .password(encoder.encode("1234"))
                 .roles("ADMIN")
                 .build();
 
         UserDetails goldUser = User.builder()
                         .username("gold")
-                                .password("{noop}1234")
-                                        .roles("ACCOUNT")
+                                  .password(encoder.encode("1234"))
+                                        .roles("ADMIN","ACCOUNT")
                                                 .build();
 
         UserDetails user = User.builder()
                 .username("user")
-                .password("{noop}1234")
+                .password(encoder.encode("1234"))
                 .roles("USER")
                 .build();
 

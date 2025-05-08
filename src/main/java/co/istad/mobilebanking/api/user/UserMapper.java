@@ -1,7 +1,6 @@
 package co.istad.mobilebanking.api.user;
 
 import org.apache.ibatis.annotations.*;
-
 import java.util.List;
 import java.util.Optional;
 

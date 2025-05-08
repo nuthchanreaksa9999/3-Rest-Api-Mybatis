@@ -3,7 +3,9 @@ DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS user_accounts;
 DROP TABLE IF EXISTS accounts;
+DROP TABLE IF EXISTS users_roles;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS account_types;
 
 -- Create fresh tables
@@ -19,7 +21,24 @@ CREATE TABLE users (
     one_signal_id VARCHAR,
     is_deleted BOOLEAN,
     is_student BOOLEAN,
-    student_card_id VARCHAR
+    student_card_id VARCHAR,
+    email VARCHAR(255),
+    password VARCHAR(255),
+    is_verified BOOLEAN,
+    verified_code VARCHAR(255)
+);
+
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255)
+);
+
+CREATE TABLE users_roles (
+    id SERIAL PRIMARY KEY,
+    user_id INT,
+    role_id INT,
+    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT fk_role_id FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
 CREATE TABLE accounts (
@@ -64,7 +83,7 @@ CREATE TABLE notifications (
     receiver_id INT
 );
 
--- Add foreign key constraints after all related tables exist
+-- Add foreign key constraints
 ALTER TABLE accounts
 ADD CONSTRAINT fk_account_type
 FOREIGN KEY (account_type_id) REFERENCES account_types(id);
