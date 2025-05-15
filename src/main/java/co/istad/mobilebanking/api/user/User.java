@@ -1,6 +1,5 @@
 package co.istad.mobilebanking.api.user;
 
-import co.istad.mobilebanking.api.auth.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -1,5 +1,6 @@
 package co.istad.mobilebanking.api.auth;
 
+import co.istad.mobilebanking.api.user.Role;
 import co.istad.mobilebanking.api.user.User;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.*;
