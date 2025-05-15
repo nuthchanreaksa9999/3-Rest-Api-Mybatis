@@ -1,7 +1,8 @@
 package co.istad.mobilebanking.api.auth.web;
 
-import co.istad.mobilebanking.api.user.validator.EmailUnique;
-import co.istad.mobilebanking.api.user.validator.RoleIdConstraint;
+import co.istad.mobilebanking.api.user.validator.email.EmailUnique;
+import co.istad.mobilebanking.api.user.validator.password.Password;
+import co.istad.mobilebanking.api.user.validator.role.RoleIdConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,17 +13,19 @@ public record RegisterDto(
 
         @NotBlank (message = "Email is required!")
         @EmailUnique
-                @Email
+        @Email
         String email,
 
         @NotBlank (message = "Password is required")
+        @Password
         String password,
 
         @NotBlank(message = "Confirmed password is required")
+        @Password
         String confirmPassword,
 
         @NotNull(message = "Roles are required")
-                @RoleIdConstraint
+        @RoleIdConstraint
         List<Integer> roleIds
 
 ) {

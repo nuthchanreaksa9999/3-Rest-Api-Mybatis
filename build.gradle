@@ -19,6 +19,10 @@ repositories {
 
 dependencies {
 
+    // Password Validator
+    // https://mvnrepository.com/artifact/org.passay/passay
+    implementation("org.passay:passay:1.6.6")
+
     // thymeleaf engine
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
@@ -33,18 +37,27 @@ dependencies {
     // pagination
     // https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper-spring-boot-starter
     implementation("com.github.pagehelper:pagehelper-spring-boot-starter:2.1.0")
+
+    // Mapstruct
     // https://mvnrepository.com/artifact/org.projectlombok/lombok-mapstruct-binding
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
     // https://mvnrepository.com/artifact/org.mapstruct/mapstruct
     implementation("org.mapstruct:mapstruct:1.6.2")
     // https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.2")
+
+    // lombok
     implementation('org.projectlombok:lombok')
     annotationProcessor 'org.projectlombok:lombok'
     // =========================================================================
+
+    // spring boot validator
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // spring boot mybatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
