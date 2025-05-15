@@ -12,11 +12,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     @Value("${spring.mail.username}")
     private String appMail;
 
+    @Transactional
     @Override
     public void register(RegisterDto registerDto) {
 
@@ -40,8 +43,14 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(encoder.encode(user.getPassword()));
 
         log.info("Registering user: {}", user.getEmail());
-         authMapper.register(user);
 
+        if (authMapper.register(user)){
+            // Create user roles
+            for(Integer role : registerDto.roleIds()){
+                authMapper.createUserRole(user.getId(), role);
+
+            }
+        }
     }
 
     @Override

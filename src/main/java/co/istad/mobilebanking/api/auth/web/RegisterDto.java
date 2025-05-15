@@ -1,6 +1,9 @@
 package co.istad.mobilebanking.api.auth.web;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.util.List;
 
 public record RegisterDto(
 
@@ -11,7 +14,10 @@ public record RegisterDto(
         String password,
 
         @NotBlank(message = "Confirmed password is required")
-        String confirmPassword
+        String confirmPassword,
+
+        @NotNull(message = "Roles are required")
+        List<Integer> roleIds
 
 ) {
 }

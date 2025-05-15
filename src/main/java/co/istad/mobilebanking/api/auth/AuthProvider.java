@@ -13,6 +13,17 @@ public class AuthProvider {
             VALUES("is_verified", "#{u.isVerified}");
             VALUES("is_deleted", "FALSE");
         }}.toString();
+    }
+
+    public String buildCreateUserRoleSql() {
+
+        return new SQL(){{
+
+            INSERT_INTO("users_roles");
+            VALUES("user_id", "#{userId}");
+            VALUES("role_id", "#{roleId}");
+
+        }}.toString();
 
     }
 
@@ -46,6 +57,17 @@ public class AuthProvider {
             SET("verified_code = #{verifiedCode}");
             WHERE("email = #{email}");
 
+        }}.toString();
+
+    }
+
+    public String buildLoadUserRolesSql(){
+
+        return new SQL(){{
+            SELECT("r.id, r.name");
+            FROM("roles AS r");
+            INNER_JOIN("users_roles AS ur ON ur.role_id = r.id");
+            WHERE("ur.user_id = #{userId}");
         }}.toString();
 
     }

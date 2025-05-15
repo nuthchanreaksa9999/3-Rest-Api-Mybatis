@@ -3,13 +3,12 @@ package co.istad.mobilebanking.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -17,7 +16,49 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final PasswordEncoder encoder;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final PasswordEncoder passwordEncoder;
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+
+        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
+        auth.setUserDetailsService(userDetailsService);
+        auth.setPasswordEncoder(passwordEncoder);
+
+        return auth;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        // Disable CSRF
+        http.csrf(csrf -> csrf.disable());
+
+        // Authorize url mapping
+        http.authorizeHttpRequests(auth -> {
+                    auth
+                                    .requestMatchers("/api/v1/auth/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyRole("ADMIN","SYSTEM")
+                            .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasRole("SYSTEM")
+                            .anyRequest().authenticated()
+                            ;
+                        }
+                )
+                .sessionManagement(session -> session
+                        // make security http STATELESS
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                // Security mechanism
+                .httpBasic(httpBasic -> {});
+
+            return http.build();
+
+    }
+
+}
+
+/*private final PasswordEncoder encoder;
 
     //  Define in-memory user
     @Bean
@@ -46,32 +87,4 @@ public class SecurityConfig {
         userDetailsManager.createUser(goldUser);
         userDetailsManager.createUser(user);
         return userDetailsManager;
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        // Disable CSRF
-        http.csrf(csrf -> csrf.disable());
-
-        // Authorize url mapping
-        http.authorizeHttpRequests(request -> {
-                            request
-                                    .requestMatchers("/api/v1/users").hasRole("ADMIN")
-                                    .requestMatchers("/api/v1/account-types/**", "/api/v1/files/**").hasAnyRole("ACCOUNT", "USER")
-                                    .anyRequest().permitAll()
-                            ;
-                        }
-                )
-                .sessionManagement(session -> session
-                        // make security http STATELESS
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                // Security mechanism
-                .httpBasic(httpBasic -> {});
-
-            return http.build();
-
-    }
-
-}
+    }*/
