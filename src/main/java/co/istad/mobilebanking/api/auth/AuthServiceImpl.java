@@ -1,5 +1,7 @@
 package co.istad.mobilebanking.api.auth;
 
+import co.istad.mobilebanking.api.auth.web.AuthDto;
+import co.istad.mobilebanking.api.auth.web.LogInDto;
 import co.istad.mobilebanking.api.auth.web.RegisterDto;
 import co.istad.mobilebanking.api.user.User;
 import co.istad.mobilebanking.api.user.UserMapStruct;
@@ -10,11 +12,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -30,9 +36,30 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapStruct userMapStruct;
     private final PasswordEncoder encoder;
     private final MailUntil mailUntil;
+    private final DaoAuthenticationProvider daoAuthenticationProvider;
 
     @Value("${spring.mail.username}")
     private String appMail;
+
+    @Override
+    public AuthDto login(LogInDto logInDto) {
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(logInDto.email(), logInDto.password());
+
+        authentication = daoAuthenticationProvider.authenticate(authentication);
+
+        log.info("Authenticated user: {}", authentication);
+        log.info("Authenticated name: {}", authentication.getName());
+        log.info("Authenticated credentials: {}", authentication.getCredentials());
+
+        // Logic on basic authorization header
+        String basicAuthFormat = authentication.getName() + ":" + authentication.getCredentials();
+        String encoding = Base64.getEncoder().encodeToString(basicAuthFormat.getBytes());
+
+        log.info("Basic: {}", encoding);
+
+        return new AuthDto(String.format("Basic %s", encoding));
+    }
 
     @Transactional
     @Override

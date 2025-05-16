@@ -20,8 +20,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class ApiException {
 
-
-
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(ResponseStatusException.class)
     public BaseError<?> handleServiceException(ResponseStatusException e) {
