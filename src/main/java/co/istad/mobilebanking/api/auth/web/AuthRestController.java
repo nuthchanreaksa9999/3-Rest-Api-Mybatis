@@ -1,8 +1,6 @@
-package co.istad.mobilebanking.api.auth;
+package co.istad.mobilebanking.api.auth.web;
 
-import co.istad.mobilebanking.api.auth.web.AuthDto;
-import co.istad.mobilebanking.api.auth.web.LogInDto;
-import co.istad.mobilebanking.api.auth.web.RegisterDto;
+import co.istad.mobilebanking.api.auth.AuthService;
 import co.istad.mobilebanking.base.BaseRest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

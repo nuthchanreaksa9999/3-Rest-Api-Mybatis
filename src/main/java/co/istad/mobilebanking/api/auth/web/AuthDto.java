@@ -2,7 +2,11 @@ package co.istad.mobilebanking.api.auth.web;
 
 public record AuthDto(
 
-        String authHeader
+        String tokenType,
+
+        String accessToken
+
+        // String authHeader
 
 ) {
 }
