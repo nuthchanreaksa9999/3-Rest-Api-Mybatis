@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -31,10 +32,12 @@ import java.util.UUID;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
@@ -43,11 +46,12 @@ public class SecurityConfig {
         auth.setUserDetailsService(userDetailsService);
         auth.setPasswordEncoder(passwordEncoder);
 
+
         return auth;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, RSAKey rsaKey) throws Exception {
 
         // Disable CSRF
         http.csrf(csrf -> csrf.disable());
@@ -56,10 +60,14 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> {
                     auth
                                     .requestMatchers("/api/v1/auth/**").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyAuthority("SCOPE_READ", "SCOPE_FULL_CONTROL")
-                            .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAnyAuthority("SCOPE_WRITE", "SCOPE_FULL_CONTROL")
-                            .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyAuthority("SCOPE_UPDATE", "SCOPE_FULL_CONTROL")
-                            .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAnyAuthority("SCOPE_DELETE", "SCOPE_FULL_CONTROL")
+                            .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAuthority("SCOPE_user:read")
+                            .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAuthority("SCOPE_user:write")
+                            .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasAuthority("SCOPE_user:delete")
+                            .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAuthority("SCOPE_user:update")
+
+//                            .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAnyAuthority("SCOPE_WRITE", "SCOPE_FULL_CONTROL")
+//                            .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyAuthority("SCOPE_UPDATE", "SCOPE_FULL_CONTROL")
+//                            .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasAnyAuthority("SCOPE_DELETE", "SCOPE_FULL_CONTROL")
 
 
                             .anyRequest().authenticated()
@@ -67,12 +75,18 @@ public class SecurityConfig {
                         }
                 )
 
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                )
                 .sessionManagement(session -> session
                         // make security http STATELESS
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                )
+                // Exception
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint)
+
+        );
 
                 // Security mechanism
                 //.httpBasic(httpBasic -> {});

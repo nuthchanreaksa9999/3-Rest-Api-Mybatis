@@ -1,0 +1,77 @@
+INSERT INTO roles_authorities(role_id, authority_id)
+VALUES(1, 5),
+(1, 6),
+(1, 7),
+(1, 8),
+(1, 9),
+(1, 10),
+(1, 11),
+(1, 12),
+(2, 1),
+(2, 2),
+(2, 4),
+(2, 5),
+(2, 6),
+(2, 7),
+(2, 8),
+(2, 9),
+(2, 10),
+(2, 11),
+(2, 12),
+(3, 1),
+(3, 2),
+(3, 3),
+(3, 4),
+(3, 5),
+(3, 6),
+(3, 7),
+(3, 8),
+(3, 9),
+(3, 10),
+(3, 11),
+(3, 12);
+
+INSERT INTO authorities ("name")
+VALUES ('user:read'),
+('user:write'),
+('user:delete'),
+('user:update'),
+('account:read'),
+ ('account:write'),
+ ('account:delete'),
+ ('account:update'),
+ ('transaction:read'),
+ ('transaction:write'),
+ ('transaction:delete'),
+ ('transaction:update');
+
+TRUNCATE TABLE roles_authorities RESTART IDENTITY;
+TRUNCATE TABLE authorities RESTART IDENTITY CASCADE;
+
+
+SELECT * FROM users
+WHERE name ILIKE '%Tomo%';
+
+SELECT * from users WHERE email = 'it.coding@gmail.com';
+
+SELECT * FROM roles WHERE id = 4;
+
+SELECT EXISTS(SELECT * FROM roles WHERE id IN (1,2,3));
+
+CREATE TABLE authorities (
+  id serial PRIMARY KEY,
+  name VARCHAR(50)
+);
+
+CREATE  TABLE roles_authorities(
+  id serial primary key,
+  role_id int,
+  authority_id int,
+  foreign key (role_id) REFERENCES roles(id),
+  foreign key (authority_id) REFERENCES authorities(id)
+);
+
+SELECT a.id, a.name
+from authorities AS a
+inner join roles_authorities AS ra on ra.authority_id = a.id
+WHERE ra.role_id = 2;

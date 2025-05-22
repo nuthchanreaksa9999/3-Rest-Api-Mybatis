@@ -1,5 +1,6 @@
 package co.istad.mobilebanking.api.auth;
 
+import co.istad.mobilebanking.api.user.Authority;
 import co.istad.mobilebanking.api.user.Role;
 import co.istad.mobilebanking.api.user.User;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -47,6 +48,12 @@ public interface AuthMapper {
     Optional<User> loadUserByUsername(@Param("email") String email);
 
     @SelectProvider(type = AuthProvider.class, method = "buildLoadUserRolesSql")
+    @Result(column = "id", property = "authorities",
+                    many = @Many(select = "loadUserAuthorities")
+    )
     List<Role> loadUserRoles(@Param("id") Integer id);
+
+    @SelectProvider(type = AuthProvider.class, method = "buildLoadUserAuthoritiesSql")
+    List<Authority> loadUserAuthorities(Integer roleId);
 
 }

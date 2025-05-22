@@ -58,27 +58,28 @@ public class AuthServiceImpl implements AuthService {
         Instant now = Instant.now();
 
         //  Define scope
-/*        String scope = authentication.getAuthorities().stream()
+        String scope = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(" "));*/
+                .filter(auth -> !auth.startsWith("ROLE_"))
+                .collect(Collectors.joining(" "));
 
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+/*        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("WRITE"));
         authorities.add(new SimpleGrantedAuthority("READ"));
         authorities.add(new SimpleGrantedAuthority("DELETE"));
         authorities.add(new SimpleGrantedAuthority("UPDATE"));
-        authorities.add(new SimpleGrantedAuthority("FULL_CONTROL"));
+        authorities.add(new SimpleGrantedAuthority("FULL_CONTROL"));*/
 
-        String scope = authorities.stream()
+/*        String scope = authorities.stream()
         .map(GrantedAuthority::getAuthority)
-        .collect(Collectors.joining(" "));
+        .collect(Collectors.joining(" "));*/
 
 
         JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
                 .subject(authentication.getName())
-                .expiresAt(now.plus(1, ChronoUnit.HOURS))
+                .expiresAt(now.plus(5, ChronoUnit.HOURS))
                 .claim("scope", scope)
                 .build();
 

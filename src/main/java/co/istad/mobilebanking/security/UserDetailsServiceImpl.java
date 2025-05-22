@@ -1,6 +1,8 @@
 package co.istad.mobilebanking.security;
 
 import co.istad.mobilebanking.api.auth.AuthMapper;
+import co.istad.mobilebanking.api.user.Authority;
+import co.istad.mobilebanking.api.user.Role;
 import co.istad.mobilebanking.api.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +31,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = authMapper.loadUserByUsername(username).orElseThrow(()
             -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
+        log.info("Loading user: {}", user);
+
+        for (Role role : user.getRoles()) {
+            for (Authority authority : role.getAuthorities()) {
+                System.out.println(authority.getName());
+            }
+        }
+
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
         customUserDetails.setUser(user);
 
         log.info("User: {}", customUserDetails);
+        log.info("User: {}", customUserDetails.getAuthorities());
 
         return customUserDetails;
     }
