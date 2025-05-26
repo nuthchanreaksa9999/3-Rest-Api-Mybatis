@@ -4,7 +4,9 @@ public record AuthDto(
 
         String tokenType,
 
-        String accessToken
+        String accessToken,
+
+        String refreshToken
 
         // String authHeader
 

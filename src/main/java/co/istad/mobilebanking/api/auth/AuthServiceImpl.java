@@ -3,6 +3,7 @@ package co.istad.mobilebanking.api.auth;
 import co.istad.mobilebanking.api.auth.web.AuthDto;
 import co.istad.mobilebanking.api.auth.web.LogInDto;
 import co.istad.mobilebanking.api.auth.web.RegisterDto;
+import co.istad.mobilebanking.api.auth.web.TokenDto;
 import co.istad.mobilebanking.api.user.User;
 import co.istad.mobilebanking.api.user.UserMapStruct;
 import co.istad.mobilebanking.api.user.UserMapper;
@@ -10,17 +11,21 @@ import co.istad.mobilebanking.ulti.MailUntil;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,10 +47,51 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder encoder;
     private final MailUntil mailUntil;
     private final DaoAuthenticationProvider daoAuthenticationProvider;
-    private final JwtEncoder jwtEncoder;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
+    private final JwtEncoder jwtAccessTokenEncoder;
+
+    private JwtEncoder jwtRefreshTokenEncoder;
+
+    @Autowired
+    public void setJwtRefreshTokenEncoder(@Qualifier("jwtRefreshTokenEncoder") JwtEncoder jwtEncoder) {
+        this.jwtRefreshTokenEncoder = jwtEncoder;
+    }
 
     @Value("${spring.mail.username}")
     private String appMail;
+
+    @Override
+    public AuthDto refreshToken(TokenDto tokenDto) {
+
+        Authentication authentication = new BearerTokenAuthenticationToken(tokenDto.refreshToken());
+        authentication =  jwtAuthenticationProvider.authenticate(authentication);
+        System.out.println("Refresh: " + authentication.getName());
+
+        Instant now = Instant.now();
+
+        Jwt jwt = (Jwt) authentication.getCredentials();
+
+        System.out.println(jwt.getSubject());
+        System.out.println(jwt.getClaims());
+        System.out.println(jwt.getClaimAsString("scope"));
+
+        JwtClaimsSet jwtAccessTokenClaimSet = JwtClaimsSet.builder()
+                .issuer("self")
+                .issuedAt(now)
+                .subject(jwt.getSubject())
+                .expiresAt(now.plus(1, ChronoUnit.SECONDS))
+                .claim("scope", jwt.getClaimAsString("scope"))
+                .build();
+
+        String accessToken = jwtAccessTokenEncoder.encode(
+                JwtEncoderParameters.from(jwtAccessTokenClaimSet)
+        ).getTokenValue();
+
+        return new AuthDto("Bearer",
+                accessToken,
+                tokenDto.refreshToken()
+                );
+    }
 
     @Override
     public AuthDto login(LogInDto logInDto) {
@@ -79,15 +125,27 @@ public class AuthServiceImpl implements AuthService {
                 .issuer("self")
                 .issuedAt(now)
                 .subject(authentication.getName())
+                .expiresAt(now.plus(1, ChronoUnit.SECONDS))
+                .claim("scope", scope)
+                .build();
+
+        JwtClaimsSet jwtRefreshClaimsSet = JwtClaimsSet.builder()
+                .issuer("self")
+                .issuedAt(now)
+                .subject(authentication.getName())
                 .expiresAt(now.plus(5, ChronoUnit.HOURS))
                 .claim("scope", scope)
                 .build();
 
-        String accessToken = jwtEncoder.encode(
+        String accessToken = jwtAccessTokenEncoder.encode(
                 JwtEncoderParameters.from(jwtClaimsSet)
         ).getTokenValue();
 
-        return new AuthDto("Bearer", accessToken);
+        String refreshToken = jwtRefreshTokenEncoder.encode(
+                JwtEncoderParameters.from(jwtRefreshClaimsSet)
+        ).getTokenValue();
+
+        return new AuthDto("Bearer", accessToken, refreshToken);
 
         // first test with auth header
 /*        log.info("Authenticated user: {}", authentication);
